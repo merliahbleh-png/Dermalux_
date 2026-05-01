@@ -1,8 +1,9 @@
 <?php
+session_start();
 require_once "config.php";
 
 if (!$conn) {
-    die("Database non disponibile. Controlla le variabili MySQL su Railway.");
+    die("Database non disponibile.");
 }
 
 $message = "";
@@ -22,15 +23,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         if ($stmt->execute()) {
             header("Location: login.php");
             exit;
-        } else {
-            $message = "Errore registrazione. Email già usata o database non configurato.";
         }
 
-        $stmt->close();
+        $message = "Errore registrazione. Email già usata.";
     }
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="it">
 <head>
@@ -40,11 +38,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 </head>
 <body>
 
-<?php
-if (file_exists("includes/navbar.php")) {
-    include "includes/navbar.php";
-}
-?>
+<?php include "includes/navbar.php"; ?>
 
 <main class="auth-page">
     <h1>Crea account</h1>
