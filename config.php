@@ -12,9 +12,7 @@ if ($host && $user && $db) {
     $conn = @new mysqli($host, $user, $pass, $db, (int)$port);
 
     if ($conn->connect_error) {
-        die("Errore DB: " . $conn->connect_error);
+        $conn = null;
     }
-} else {
-    die("Variabili DB mancanti.");
 }
 ?>
