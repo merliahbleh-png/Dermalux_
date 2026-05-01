@@ -1,8 +1,9 @@
 <?php
+session_start();
 require_once "config.php";
 
 if (!$conn) {
-    die("Database non disponibile. Controlla le variabili MySQL su Railway.");
+    die("Database non disponibile.");
 }
 
 $message = "";
@@ -24,24 +25,18 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $user = $result->fetch_assoc();
 
             if (password_verify($password, $user["password"])) {
-                session_start();
                 $_SESSION["user_id"] = $user["id"];
                 $_SESSION["email"] = $user["email"];
 
                 header("Location: index.php");
                 exit;
-            } else {
-                $message = "Credenziali non valide.";
             }
-        } else {
-            $message = "Credenziali non valide.";
         }
 
-        $stmt->close();
+        $message = "Credenziali non valide.";
     }
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="it">
 <head>
@@ -51,11 +46,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 </head>
 <body>
 
-<?php
-if (file_exists("includes/navbar.php")) {
-    include "includes/navbar.php";
-}
-?>
+<?php include "includes/navbar.php"; ?>
 
 <main class="auth-page">
     <h1>Account</h1>
