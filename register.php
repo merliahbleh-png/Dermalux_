@@ -4,32 +4,68 @@ require_once "config.php";
 if (!$conn) {
     die("Database non disponibile. Controlla le variabili MySQL su Railway.");
 }
-?>
-    
-<link rel="stylesheet" href="assets/css/style.css">
-<div class="auth-page">
-    <div class="auth-card">
-        <a class="brand auth-brand" href="index.php">DERMALUX</a>
-        <h1>Create account</h1>
-        <p class="auth-subtitle">Start your skincare routine with a premium-looking storefront.</p>
 
-        <form method="POST" class="auth-form">
-            <input name="username" type="text" placeholder="Username" required>
-            <input name="password" type="password" placeholder="Password" required>
-            <button class="btn btn-dark full">Register</button>
-        </form>
+$message = "";
 
-        <p class="auth-switch">Already have an account? <a href="login.php">Login</a></p>
-    </div>
-</div>
-<?php
-if ($_POST) {
-    $u = $_POST['username'];
-    $p = password_hash($_POST['password'], PASSWORD_DEFAULT);
-    $stmt = $conn->prepare("INSERT INTO users(username,password) VALUES (?,?)");
-    $stmt->bind_param("ss", $u, $p);
-    $stmt->execute();
-    header("Location: login.php");
-    exit();
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    $email = trim($_POST["email"] ?? "");
+    $password = trim($_POST["password"] ?? "");
+
+    if ($email === "" || $password === "") {
+        $message = "Inserisci email e password.";
+    } else {
+        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+
+        $stmt = $conn->prepare("INSERT INTO users (email, password) VALUES (?, ?)");
+        $stmt->bind_param("ss", $email, $hashedPassword);
+
+        if ($stmt->execute()) {
+            header("Location: login.php");
+            exit;
+        } else {
+            $message = "Errore registrazione. Email già usata o database non configurato.";
+        }
+
+        $stmt->close();
+    }
 }
 ?>
+
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>Registrazione - Dermalux</title>
+    <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<?php
+if (file_exists("includes/navbar.php")) {
+    include "includes/navbar.php";
+}
+?>
+
+<main class="auth-page">
+    <h1>Crea account</h1>
+    <p>Registrati su Dermalux.</p>
+
+    <?php if ($message): ?>
+        <p class="error"><?php echo htmlspecialchars($message); ?></p>
+    <?php endif; ?>
+
+    <form method="POST" class="auth-form">
+        <label>Email</label>
+        <input type="email" name="email" required>
+
+        <label>Password</label>
+        <input type="password" name="password" required>
+
+        <button type="submit">Registrati</button>
+    </form>
+
+    <p>Hai già un account? <a href="login.php">Accedi</a></p>
+</main>
+
+</body>
+</html>
