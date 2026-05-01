@@ -1,4 +1,10 @@
-<?php include "config.php"; ?>
+
+<?php
+require_once "config.php";
+
+if (!$conn) {
+    die("Database non disponibile. Controlla le variabili MySQL su Railway.");
+}
 <link rel="stylesheet" href="assets/css/style.css">
 <div class="auth-page">
     <div class="auth-card">
