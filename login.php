@@ -1,42 +1,82 @@
-
 <?php
 require_once "config.php";
 
 if (!$conn) {
     die("Database non disponibile. Controlla le variabili MySQL su Railway.");
 }
-<link rel="stylesheet" href="assets/css/style.css">
-<div class="auth-page">
-    <div class="auth-card">
-        <a class="brand auth-brand" href="index.php">DERMALUX</a>
-        <h1>Welcome back</h1>
-        <p class="auth-subtitle">Access your account to continue shopping.</p>
 
-        <form method="POST" class="auth-form">
-            <input name="username" type="text" placeholder="Username" required>
-            <input name="password" type="password" placeholder="Password" required>
-            <button class="btn btn-dark full">Login</button>
-        </form>
+$message = "";
 
-        <p class="auth-switch">First time here? <a href="register.php">Create an account</a></p>
-    </div>
-</div>
-<?php
-if ($_POST) {
-    $u = $_POST['username'];
-    $p = $_POST['password'];
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    $email = trim($_POST["email"] ?? "");
+    $password = trim($_POST["password"] ?? "");
 
-    $res = $conn->query("SELECT * FROM users WHERE username='$u'");
-    $user = $res ? $res->fetch_assoc() : null;
-
-    if ($user && password_verify($p, $user['password'])) {
-        $_SESSION['user'] = $u;
-        $payload = base64_encode(openssl_encrypt("guest:$u", "AES-128-ECB", "d3rma_secret"));
-        setcookie("DLX_SESSION", $payload, time()+3600, "/");
-        header("Location: index.php");
-        exit();
+    if ($email === "" || $password === "") {
+        $message = "Inserisci email e password.";
     } else {
-        echo "<p class='flash-error'>Login failed</p>";
+        $stmt = $conn->prepare("SELECT id, email, password FROM users WHERE email = ? LIMIT 1");
+        $stmt->bind_param("s", $email);
+        $stmt->execute();
+
+        $result = $stmt->get_result();
+
+        if ($result && $result->num_rows === 1) {
+            $user = $result->fetch_assoc();
+
+            if (password_verify($password, $user["password"])) {
+                session_start();
+                $_SESSION["user_id"] = $user["id"];
+                $_SESSION["email"] = $user["email"];
+
+                header("Location: index.php");
+                exit;
+            } else {
+                $message = "Credenziali non valide.";
+            }
+        } else {
+            $message = "Credenziali non valide.";
+        }
+
+        $stmt->close();
     }
 }
 ?>
+
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>Login - Dermalux</title>
+    <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<?php
+if (file_exists("includes/navbar.php")) {
+    include "includes/navbar.php";
+}
+?>
+
+<main class="auth-page">
+    <h1>Account</h1>
+    <p>Accedi al tuo account Dermalux.</p>
+
+    <?php if ($message): ?>
+        <p class="error"><?php echo htmlspecialchars($message); ?></p>
+    <?php endif; ?>
+
+    <form method="POST" class="auth-form">
+        <label>Email</label>
+        <input type="email" name="email" required>
+
+        <label>Password</label>
+        <input type="password" name="password" required>
+
+        <button type="submit">Accedi</button>
+    </form>
+
+    <p>Non hai un account? <a href="register.php">Registrati</a></p>
+</main>
+
+</body>
+</html>
