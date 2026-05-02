@@ -1,4 +1,1 @@
-<?php
-http_response_code(200);
-echo 'OK';
-?>
+<?php header('Content-Type: text/plain; charset=utf-8'); echo "OK\n"; ?>

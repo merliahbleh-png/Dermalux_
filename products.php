@@ -1,33 +1,10 @@
-<?php include "config.php"; include "includes/navbar.php"; ?>
-<main class="container section">
-    <div class="section-head products-head">
-        <div>
-            <p class="eyebrow">SHOP ALL</p>
-            <h1 class="page-title">Daily skincare essentials</h1>
-        </div>
-        <p class="products-subtitle">A cleaner, more premium storefront with fixed image sizing and a more Shopify-like layout.</p>
-    </div>
-
-    <div class="products-grid products-grid-all">
-        <?php
-        foreach (dermalux_get_products() as $row) {
-            $imgPath = "assets/img/" . intval($row['id']) . ".jpg";
-        ?>
-            <article class="product-card">
-                <a class="product-image-wrap" href="product.php?id=<?php echo intval($row['id']); ?>">
-                    <img class="product-image" src="<?php echo $imgPath; ?>" alt="<?php echo htmlspecialchars($row['name']); ?>">
-                </a>
-                <div class="product-meta">
-                    <p class="product-badge">Premium care</p>
-                    <h3><?php echo htmlspecialchars($row['name']); ?></h3>
-                    <p class="product-desc"><?php echo htmlspecialchars($row['description']); ?></p>
-                    <div class="product-bottom">
-                        <span class="price">€<?php echo number_format($row['price'], 2); ?></span>
-                        <a href="product.php?id=<?php echo intval($row['id']); ?>" class="btn btn-dark btn-small">View</a>
-                    </div>
-                </div>
-            </article>
-        <?php } ?>
-    </div>
-</main>
-<?php include "footer.php"; ?>
+<?php
+session_start();
+require_once "config.php";
+include "includes/navbar.php";
+$products = dermalux_products(); ?>
+<main class="container section"><div class="section-head products-head"><div><p class="eyebrow">SHOP ALL</p><h1>Daily skincare essentials</h1></div><p class="products-subtitle">A cleaner, premium storefront with fixed image sizing and a modern layout.</p></div><div class="product-grid products-grid-all">
+<?php foreach ($products as $product): ?><article class="product-card"><a href="product.php?id=<?php echo intval($product['id']); ?>"><img src="<?php echo htmlspecialchars($product['image']); ?>" alt="<?php echo htmlspecialchars($product['name']); ?>"></a><p class="product-badge">Premium care</p><h3><?php echo htmlspecialchars($product['name']); ?></h3><p><?php echo htmlspecialchars($product['description']); ?></p><div class="product-bottom"><span>€<?php echo number_format((float)$product['price'], 2); ?></span><a href="product.php?id=<?php echo intval($product['id']); ?>" class="btn btn-dark btn-small">View</a></div></article><?php endforeach; ?>
+</div></main>
+<script src="assets/js/app.js"></script>
+<?php include "includes/footer.php"; ?>

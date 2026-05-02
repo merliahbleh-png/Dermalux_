@@ -1,2 +1,1 @@
-var a = 'Y29va2llX2hhbmRsZXI='; console.log(atob(a));
-// Hidden promo flag: FLAG{cookie_handler_v2}
+document.addEventListener("DOMContentLoaded",()=>{document.querySelectorAll(".product-card").forEach((c,i)=>{c.style.animationDelay=`${i*70}ms`;c.classList.add("fade-in")})});
